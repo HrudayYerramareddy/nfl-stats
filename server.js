@@ -66,5 +66,8 @@ function parseQuestion(question,custom=[]){
 app.get("/api/stats",async(req,res)=>{try{const players=await loadStats();res.json({season:SEASON,updatedAt:new Date(cache.loadedAt).toISOString(),players});}catch(e){res.status(502).json({error:e.message});}});
 app.post("/api/parse-query",(req,res)=>res.json(parseQuestion(req.body.question||"",req.body.customStats||[])));
 app.get("/api/health",(req,res)=>res.json({ok:true,season:SEASON}));
-app.get("*",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+
+// Express 5 requires a named wildcard. This catches all non-API routes for the SPA.
+app.get("/{*splat}",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+
 app.listen(PORT,()=>console.log("Gridiron Lab running at http://localhost:"+PORT));
