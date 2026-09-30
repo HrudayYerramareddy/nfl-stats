@@ -47,10 +47,10 @@ async function loadStats(){
 }
 const aliases={"passing yards":"passing_yards","pass yards":"passing_yards","yards per attempt":"yards_per_attempt","ypa":"yards_per_attempt","attempts":"attempts","passing attempts":"attempts","completions":"completions","completion percentage":"completion_pct","completion pct":"completion_pct","passing touchdowns":"passing_tds","passing tds":"passing_tds","interceptions":"interceptions","rushing yards":"rushing_yards","carries":"carries","yards per carry":"yards_per_carry","rushing touchdowns":"rushing_tds","receiving yards":"receiving_yards","targets":"targets","receptions":"receptions","catch rate":"catch_pct","catch percentage":"catch_pct","yards per target":"yards_per_target","yards per reception":"yards_per_reception","receiving touchdowns":"receiving_tds","fantasy points":"fantasy_points"};
 function parseQuestion(question,custom=[]){
-  const q=question.toLowerCase().trim(), out={position:"ALL",filters:[],sort:"passing_yards",order:"desc",limit:25};
+  const q=question.toLowerCase().trim(), out={position:"ALL",filters:[],sort:"passing_yards",order:"desc",limit:25,columns:[]};
   if(/\b(qbs?|quarterbacks?)\b/.test(q))out.position="QB"; else if(/\b(rbs?|running backs?)\b/.test(q))out.position="RB"; else if(/\b(wrs?|wide receivers?|receivers?)\b/.test(q))out.position="WR"; else if(/\b(tes?|tight ends?)\b/.test(q))out.position="TE";
   const fields={...aliases}; custom.forEach(x=>fields[x.name.toLowerCase()]="custom:"+x.id);
-  const ordered=Object.entries(fields).sort((a,b)=>b[0].length-a[0].length);
+  const ordered=Object.entries(fields).sort((a,b)=>b[0].length-a[0].length);\n  const mentions=ordered.filter(([phrase])=>q.includes(phrase)).sort((a,b)=>q.indexOf(a[0])-q.indexOf(b[0]));\n  out.columns=[...new Set(mentions.map(([,field])=>field))];
   for(const [phrase,field] of ordered){
     const p=phrase.replace(/[.*+?^$()|[\]\\]/g,"\\$&");
     const a=q.match(new RegExp("(?:at least|minimum|over|more than|above|>=?)\\s*(\\d+(?:\\.\\d+)?)\\s*(?:\\w+\\s+){0,2}?"+p));
