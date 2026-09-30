@@ -75,5 +75,16 @@ $("#filters").onclick=e=>{if(e.target.dataset.remove!==undefined){filters.splice
 $("#field-chips").onclick=e=>{if(e.target.dataset.field){const t=$("#formula"),start=t.selectionStart;t.value=t.value.slice(0,start)+e.target.dataset.field+t.value.slice(t.selectionEnd);t.focus()}};
 $("#formula-form").onsubmit=e=>{e.preventDefault();const name=$("#formula-name").value.trim(),formula=$("#formula").value.trim();try{safeFormula(formula,players[0]||Object.fromEntries(Object.keys(BASE_FIELDS).map(k=>[k,1])));custom.push({id:Date.now().toString(36),name,formula});localStorage.setItem("gridiron-custom-stats",JSON.stringify(custom));e.target.reset();$("#formula-error").textContent="";renderCustom()}catch(err){$("#formula-error").textContent=err.message}};
 $("#custom-list").onclick=e=>{if(e.target.dataset.delete){custom=custom.filter(c=>c.id!==e.target.dataset.delete);localStorage.setItem("gridiron-custom-stats",JSON.stringify(custom));renderCustom()}};
-$("#compare-btn").onclick=()=>{const a=players.find(p=>p.player_name.toLowerCase()===$("#compare-a").value.toLowerCase()),b=players.find(p=>p.player_name.toLowerCase()===$("#compare-b").value.toLowerCase());if(!a||!b)return $("#comparison").innerHTML='<p class="error">Choose two players from the suggestions.</p>';const keys=["games","passing_yards","passing_tds","yards_per_attempt","rushing_yards","yards_per_carry","receiving_yards","yards_per_target","fantasy_points",...custom.map(c=>"custom:"+c.id)];$("#comparison").innerHTML='<div class="comparison-grid"><div class="name">'+a.player_name+'</div><div class="metric">STAT</div><div class="name right">'+b.player_name+'</div>'+keys.map(k=>'<div>'+fmt(value(a,k),k)+'</div><div class="metric">'+(allFields()[k]||k)+'</div><div class="right">'+fmt(value(b,k),k)+'</div>').join("")+"</div>"};
+$("#compare-btn").onclick=()=>{
+ const a=players.find(p=>p.player_name.toLowerCase()===$("#compare-a").value.toLowerCase());
+ const b=players.find(p=>p.player_name.toLowerCase()===$("#compare-b").value.toLowerCase());
+ if(!a||!b)return $("#comparison").innerHTML='<p class="error">Choose two players from the suggestions.</p>';
+ const keys=["games","passing_yards","passing_tds","yards_per_attempt","rushing_yards","yards_per_carry","receiving_yards","yards_per_target","fantasy_points",...custom.map(c=>"custom:"+c.id)];
+ const rows=keys.map(k=>{
+   const av=value(a,k),bv=value(b,k);
+   const ac=av>bv?" winner":"",bc=bv>av?" winner":"";
+   return '<div class="compare-value'+ac+'">'+fmt(av,k)+'</div><div class="metric">'+(allFields()[k]||k)+'</div><div class="right compare-value'+bc+'">'+fmt(bv,k)+'</div>';
+ }).join("");
+ $("#comparison").innerHTML='<div class="comparison-grid"><div class="name">'+a.player_name+'</div><div class="metric">STAT</div><div class="name right">'+b.player_name+'</div>'+rows+"</div>";
+};
 init();
