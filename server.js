@@ -50,7 +50,9 @@ function parseQuestion(question,custom=[]){
   const q=question.toLowerCase().trim(), out={position:"ALL",filters:[],sort:"passing_yards",order:"desc",limit:25,columns:[]};
   if(/\b(qbs?|quarterbacks?)\b/.test(q))out.position="QB"; else if(/\b(rbs?|running backs?)\b/.test(q))out.position="RB"; else if(/\b(wrs?|wide receivers?|receivers?)\b/.test(q))out.position="WR"; else if(/\b(tes?|tight ends?)\b/.test(q))out.position="TE";
   const fields={...aliases}; custom.forEach(x=>fields[x.name.toLowerCase()]="custom:"+x.id);
-  const ordered=Object.entries(fields).sort((a,b)=>b[0].length-a[0].length);\n  const mentions=ordered.filter(([phrase])=>q.includes(phrase)).sort((a,b)=>q.indexOf(a[0])-q.indexOf(b[0]));\n  out.columns=[...new Set(mentions.map(([,field])=>field))];
+  const ordered=Object.entries(fields).sort((a,b)=>b[0].length-a[0].length);
+  const mentions=ordered.filter(([phrase])=>q.includes(phrase)).sort((a,b)=>q.indexOf(a[0])-q.indexOf(b[0]));
+  out.columns=[...new Set(mentions.map(([,field])=>field))];
   for(const [phrase,field] of ordered){
     const p=phrase.replace(/[.*+?^$()|[\]\\]/g,"\\$&");
     const a=q.match(new RegExp("(?:at least|minimum|over|more than|above|>=?)\\s*(\\d+(?:\\.\\d+)?)\\s*(?:\\w+\\s+){0,2}?"+p));
