@@ -34,7 +34,30 @@ function renderCustom(){
  $("#custom-list").innerHTML=custom.length?custom.map(c=>'<div class="custom-item"><button data-delete="'+c.id+'">×</button><strong>'+c.name+'</strong><code>'+c.formula+'</code></div>').join(""):'<p class="empty">No custom stats yet. Create one and it becomes available everywhere in the explorer.</p>';
  populateFields();renderFilters();if(players.length)render();
 }
+function findPlayer(name){
+ const cleaned=name.trim().toLowerCase().replace(/[?.!]+$/,"");
+ return players.find(p=>p.player_name.toLowerCase()===cleaned)
+   || players.find(p=>p.player_name.toLowerCase().includes(cleaned))
+   || players.find(p=>cleaned.includes(p.player_name.toLowerCase()));
+}
+function runComparison(a,b){
+ $("#compare-a").value=a.player_name;
+ $("#compare-b").value=b.player_name;
+ showView("compare");
+ $("#compare-btn").click();
+}
 async function ask(q){
+ const text=q.trim();
+ const vs=text.match(/^(.+?)\s+(?:vs\.?|versus)\s+(.+?)(?:\s+(?:stats?|comparison|passing stats?|rushing stats?|receiving stats?))?$/i);
+ const compare=text.match(/^compare\s+(.+?)\s+(?:and|with|to|vs\.?)\s+(.+?)(?:\s+(?:stats?|comparison))?$/i);
+ const match=vs||compare;
+ if(match){
+   const a=findPlayer(match[1]), b=findPlayer(match[2]);
+   if(a&&b){runComparison(a,b);return}
+   showView("compare");
+   $("#comparison").innerHTML='<p class="error">Could not match both player names. Try their full names.</p>';
+   return;
+ }
  const r=await fetch("/api/parse-query",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,customStats:custom})});const parsed=await r.json();
  $("#position").value=parsed.position;filters=parsed.filters||[];queryColumns=parsed.columns&&parsed.columns.length?parsed.columns:null;$("#sort").value=parsed.sort;$("#order").value=parsed.order;limit=parsed.limit||25;renderFilters();showView("explore");render();
 }
