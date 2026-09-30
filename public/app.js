@@ -19,7 +19,8 @@ function render(){
  let rows=players.filter(p=>(pos==="ALL"||p.position===pos)&&(!search||p.player_name.toLowerCase().includes(search)||p.team.toLowerCase().includes(search)));
  for(const f of filters)rows=rows.filter(p=>{const v=value(p,f.field),n=Number(f.value);return f.op===">="?v>=n:f.op==="<="?v<=n:f.op===">"?v>n:f.op==="<"?v<n:v===n});
  rows.sort((a,b)=>(value(a,sort)-value(b,sort))*(order==="desc"?-1:1));
- const defaultFields=pos==="QB"?["attempts","completions","completion_pct","passing_yards","yards_per_attempt","passing_tds","interceptions"]:pos==="RB"?["carries","rushing_yards","yards_per_carry","rushing_tds","targets","receptions"]:pos==="WR"||pos==="TE"?["targets","receptions","catch_pct","receiving_yards","yards_per_target","receiving_tds"]:["games",sort,"fantasy_points"];\n const fields=queryColumns&&queryColumns.length?queryColumns:defaultFields;
+ const defaultFields=pos==="QB"?["attempts","completions","completion_pct","passing_yards","yards_per_attempt","passing_tds","interceptions"]:pos==="RB"?["carries","rushing_yards","yards_per_carry","rushing_tds","targets","receptions"]:pos==="WR"||pos==="TE"?["targets","receptions","catch_pct","receiving_yards","yards_per_target","receiving_tds"]:["games",sort,"fantasy_points"];
+ const fields=queryColumns&&queryColumns.length?queryColumns:defaultFields;
  const unique=[...new Set(fields.concat(sort))];
  $("#thead").innerHTML="<tr><th>Player</th><th>Pos</th><th>Team</th>"+unique.map(k=>"<th>"+(allFields()[k]||k)+"</th>").join("")+"</tr>";
  $("#tbody").innerHTML=rows.slice(0,limit).map(p=>'<tr><td class="player">'+p.player_name+'</td><td>'+p.position+'</td><td class="team">'+p.team+'</td>'+unique.map(k=>"<td>"+fmt(value(p,k),k)+"</td>").join("")+"</tr>").join("");
